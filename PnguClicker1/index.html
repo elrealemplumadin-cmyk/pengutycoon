@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengu Tycoon: Ultimate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react/jsx-runtime": "https://esm.sh/react@18.2.0/jsx-runtime",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "lucide-react": "https://esm.sh/lucide-react@0.303.0?external=react",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/"
+  }
+}
+</script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&family=Playfair+Display:ital,wght@0,400;0,900;1,400&family=Titan+One&family=Fredoka:wght@400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&display=swap');
+        
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            overflow: hidden;
+            user-select: none;
+        }
+        
+        .font-serif-elegant {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .font-tycoon {
+            font-family: 'Titan One', sans-serif;
+        }
+
+        .font-mythic {
+            font-family: 'Cinzel', serif;
+        }
+
+        .font-friendly {
+            font-family: 'Fredoka', sans-serif;
+        }
+        
+        * {
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- 3D PENGUIN --- */
+        .penguin-container {
+            position: relative;
+            width: 180px;
+            height: 200px;
+            transition: transform 0.1s;
+            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.5));
+            z-index: 10;
+        }
+        .penguin-container:active { transform: scale(0.95); }
+        .penguin-body {
+            position: absolute; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #334155 0%, #0f172a 100%);
+            border-radius: 50% 50% 40% 40%;
+            box-shadow: inset -10px -10px 20px rgba(0,0,0,0.5);
+        }
+        .penguin-belly {
+            position: absolute; width: 70%; height: 80%;
+            background: linear-gradient(to bottom, #f8fafc, #cbd5e1);
+            border-radius: 50% 50% 40% 40%;
+            top: 15%; left: 15%;
+        }
+        .penguin-eye {
+            position: absolute; width: 24px; height: 24px;
+            background: white; border-radius: 50%; top: 30%;
+        }
+        .penguin-eye.left { left: 25%; }
+        .penguin-eye.right { right: 25%; }
+        .penguin-pupil {
+            position: absolute; width: 8px; height: 8px; background: black;
+            border-radius: 50%; top: 30%; left: 30%;
+        }
+        .penguin-beak {
+            position: absolute; width: 30px; height: 20px;
+            background: orange; border-radius: 50%; top: 40%; left: 42%;
+        }
+        .penguin-foot {
+            position: absolute; width: 40px; height: 25px;
+            background: orange; bottom: -5px; border-radius: 20px; z-index: -1;
+        }
+        .penguin-foot.left { left: 20%; transform: rotate(-15deg); }
+        .penguin-foot.right { right: 20%; transform: rotate(15deg); }
+
+        /* --- HEISENBERG ACCESSORIES --- */
+        .penguin-hat {
+            position: absolute;
+            top: -15px; 
+            left: 10%;
+            width: 80%;
+            height: 60px;
+            z-index: 20;
+            pointer-events: none;
+        }
+        .hat-brim {
+            width: 120%;
+            height: 10px;
+            background: #1a1a1a;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 0;
+            left: -10%;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+            border-bottom: 2px solid #000;
+        }
+        .hat-crown {
+            width: 70%;
+            height: 35px;
+            background: linear-gradient(to right, #1a1a1a, #262626);
+            border-radius: 30% 30% 5% 5%;
+            position: absolute;
+            bottom: 5px;
+            left: 15%;
+            box-shadow: inset -2px -2px 5px rgba(0,0,0,0.5);
+        }
+        .hat-band {
+            width: 72%;
+            height: 6px;
+            background: #333;
+            position: absolute;
+            bottom: 8px;
+            left: 14%;
+            z-index: 21;
+            border-radius: 2px;
+        }
+        .penguin-glasses {
+            position: absolute;
+            top: 29%; 
+            left: 18%;
+            width: 64%;
+            height: 25px;
+            z-index: 25;
+            pointer-events: none;
+        }
+        .glasses-bridge {
+            position: absolute;
+            top: 8px;
+            left: 42%;
+            width: 16%;
+            height: 3px;
+            background: #111;
+        }
+        .glasses-lens {
+            width: 38%;
+            height: 100%;
+            background: linear-gradient(135deg, #111, #000);
+            border: 2px solid #222;
+            border-radius: 15% 15% 40% 40%;
+            position: absolute;
+            opacity: 0.95;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+        .glasses-lens::after {
+            content: '';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 6px;
+            height: 3px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 2px;
+            transform: rotate(-20deg);
+        }
+        .glasses-lens.left { left: 0; }
+        .glasses-lens.right { right: 0; }
+
+        /* --- HENRY ACT ACCESSORIES (TF2 Scout + HL Crowbar) --- */
+        
+        /* Scout Cap */
+        .scout-cap {
+            position: absolute;
+            top: -5px;
+            left: 15%;
+            width: 70%;
+            height: 40px;
+            background: #333; /* Dark Grey/Black style */
+            border-radius: 50% 50% 10% 10%;
+            z-index: 20;
+            box-shadow: inset -5px -5px 10px rgba(0,0,0,0.5);
+        }
+        .scout-cap-bill {
+            position: absolute;
+            top: 25px;
+            left: 10%;
+            width: 80%;
+            height: 15px;
+            background: #222;
+            border-radius: 50%;
+            z-index: 21;
+            transform: rotateX(40deg);
+            box-shadow: 0 5px 5px rgba(0,0,0,0.3);
+        }
+
+        /* Scout Headset */
+        .scout-headset {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 22;
+            pointer-events: none;
+        }
+        .headset-band {
+            position: absolute;
+            top: 5px;
+            left: 20%;
+            width: 60%;
+            height: 40px;
+            border-top: 4px solid #d97706; /* Yellow/Orange tint */
+            border-radius: 50% 50% 0 0;
+        }
+        .headset-ear {
+            position: absolute;
+            top: 30px;
+            left: 80%; /* Only on one side usually */
+            width: 20px;
+            height: 30px;
+            background: #d97706;
+            border-radius: 5px;
+            box-shadow: -2px 2px 5px rgba(0,0,0,0.5);
+        }
+        .headset-mic {
+            position: absolute;
+            top: 50px;
+            left: 85%;
+            width: 40px;
+            height: 4px;
+            background: #ccc;
+            transform: rotate(15deg);
+            transform-origin: left center;
+        }
+        .headset-mic::after {
+            content: '';
+            position: absolute;
+            right: -5px;
+            top: -3px;
+            width: 10px;
+            height: 10px;
+            background: #222;
+            border-radius: 50%;
+        }
+
+        /* Half-Life Crowbar */
+        .crowbar {
+            position: absolute;
+            top: 50%;
+            right: -20px; /* Holding it to the side */
+            width: 80px;
+            height: 80px;
+            z-index: 5; /* Behind slightly or roughly parallel */
+            transform: rotate(-15deg);
+            filter: drop-shadow(5px 5px 5px rgba(0,0,0,0.5));
+        }
+        .crowbar-handle {
+            position: absolute;
+            bottom: 0;
+            left: 35px;
+            width: 10px;
+            height: 60px;
+            background: #dc2626; /* Red */
+            border-radius: 5px;
+            border-right: 2px solid #991b1b;
+        }
+        .crowbar-hook {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            width: 30px;
+            height: 20px;
+            border-top: 10px solid #9ca3af; /* Grey steel */
+            border-left: 10px solid #9ca3af;
+            border-radius: 10px 0 0 0;
+            transform: rotate(45deg);
+        }
+        .crowbar-hook::after { /* The split end */
+            content: '';
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            width: 10px;
+            height: 5px;
+            background: #9ca3af;
+            transform: rotate(-45deg);
+        }
+
+
+        /* --- SPEECH BUBBLE ANIMATION --- */
+        @keyframes pop-in {
+            0% { opacity: 0; transform: scale(0.5) translateY(20px); }
+            40% { opacity: 1; transform: scale(1.1) translateY(-5px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes fade-out-bubble {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.9) translateY(10px); }
+        }
+        .animate-bubble-in { animation: pop-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .animate-bubble-out { animation: fade-out-bubble 0.5s ease-in forwards; }
+
+        /* --- SMOOTH ANIMATIONS --- */
+        
+        .float-anim { 
+            animation: floatTextSmooth 1s cubic-bezier(0.215, 0.61, 0.355, 1) forwards; 
+            pointer-events: none;
+        }
+        @keyframes floatTextSmooth {
+            0% { transform: translateY(0) scale(0.8); opacity: 0; }
+            15% { transform: translateY(-15px) scale(1.2); opacity: 1; }
+            100% { transform: translateY(-80px) scale(1); opacity: 0; }
+        }
+
+        .animate-reward-float {
+            animation: rewardFloat 2.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+        }
+        @keyframes rewardFloat {
+            0% { opacity: 0; transform: translateY(10px) translateX(-10px) scale(0.9); }
+            10% { opacity: 1; transform: translateY(0) translateX(0) scale(1); }
+            80% { opacity: 1; transform: translateY(-5px); }
+            100% { opacity: 0; transform: translateY(-20px); }
+        }
+
+        /* DAMAGE SCREEN VIGNETTE */
+        @keyframes damage-screen-pulse {
+            0% { opacity: 0; }
+            10% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        .animate-damage-screen {
+            animation: damage-screen-pulse 0.4s ease-out forwards;
+        }
+
+        /* DAMAGE BAR FLASH */
+        @keyframes damage-bar-flash {
+            0% { filter: brightness(1); }
+            50% { filter: brightness(3) sepia(1) hue-rotate(-50deg) saturate(5); } 
+            100% { filter: brightness(1); }
+        }
+        .animate-damage-flash {
+            animation: damage-bar-flash 0.2s ease-out;
+        }
+
+        /* COMBAT TRANSITIONS */
+        @keyframes combat-enter {
+            0% { opacity: 0; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes combat-exit {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.05); pointer-events: none; }
+        }
+        .animate-combat-enter { animation: combat-enter 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .animate-combat-exit { animation: combat-exit 0.3s ease-in forwards; }
+
+        /* REBIRTH FLASH */
+        @keyframes flash-bang {
+            0% { opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { opacity: 0; }
+        }
+        .animate-flash-bang {
+            animation: flash-bang 2.5s ease-in-out forwards;
+        }
+
+        /* DAY GLOW */
+        @keyframes day-change-pop {
+            0% { transform: scale(1); filter: brightness(1); }
+            50% { transform: scale(1.2); filter: brightness(2) drop-shadow(0 0 10px gold); }
+            100% { transform: scale(1); filter: brightness(1); }
+        }
+        .animate-day-change {
+            animation: day-change-pop 0.8s ease-out;
+        }
+
+        /* NOTIFICATIONS */
+        @keyframes notif-slide-down {
+            0% { opacity: 0; transform: translateY(-20px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes notif-fade-out-up {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-10px); }
+        }
+        .animate-notif-in { animation: notif-slide-down 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .animate-notif-out { animation: notif-fade-out-up 0.4s ease-in forwards; }
+
+        /* MODAL ANIMATIONS */
+        @keyframes fade-scale-in {
+            0% { opacity: 0; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .animate-modal-in {
+            animation: fade-scale-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* DEATH SCREEN ANIMATIONS */
+        @keyframes death-fade-in {
+            0% { opacity: 0; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .animate-death-in { animation: death-fade-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .animate-heartbeat { animation: heartbeat 1.5s infinite ease-in-out; }
+
+        /* REROLL SHAKE AND BLUR */
+        @keyframes shake-constant {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            25% { transform: translate(-1px, -2px) rotate(-1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            75% { transform: translate(3px, 1px) rotate(-1deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .animate-shake-constant {
+            animation: shake-constant 0.5s infinite;
+        }
+        
+        @keyframes text-motion-blur {
+            0% { filter: blur(0px); transform: scale(1); }
+            50% { filter: blur(2px); transform: scale(1.05) skewX(-10deg); }
+            100% { filter: blur(0px); transform: scale(1); }
+        }
+        .animate-text-blur {
+            animation: text-motion-blur 0.1s infinite;
+        }
+        
+        @keyframes jump-happy {
+            0% { transform: scale(1) translateY(0); }
+            50% { transform: scale(1.1) translateY(-10px); }
+            100% { transform: scale(1) translateY(0); }
+        }
+        .animate-jump-happy {
+            animation: jump-happy 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* SLOT MACHINE VERTICAL FALL */
+        @keyframes slot-fall {
+            0% { transform: translateY(-150%) scale(0.8); filter: blur(4px); opacity: 0; }
+            60% { transform: translateY(10%) scale(1.1); filter: blur(0); opacity: 1; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        .animate-slot-fall {
+            animation: slot-fall 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* ENEMY SWAY ANIMATION */
+        @keyframes sway {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            25% { transform: translateX(-5px) rotate(-2deg); }
+            75% { transform: translateX(5px) rotate(2deg); }
+        }
+        .animate-sway {
+            animation: sway 3s ease-in-out infinite;
+        }
+
+        /* PLAYER DAMAGE FLOAT */
+        @keyframes float-up-fade {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-40px) scale(1.2); opacity: 0; }
+        }
+        .animate-float-up {
+            animation: float-up-fade 1.5s ease-out forwards;
+        }
+
+        /* MYSTICAL BUTTON PULSE */
+        @keyframes mystic-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0.7); border-color: rgba(192, 132, 252, 0.5); }
+            70% { box-shadow: 0 0 20px 10px rgba(168, 85, 247, 0); border-color: rgba(232, 121, 249, 0.8); }
+            100% { box-shadow: 0 0 0 0 rgba(168, 85, 247, 0); border-color: rgba(192, 132, 252, 0.5); }
+        }
+        .mystic-button-anim {
+            animation: mystic-pulse 2s infinite;
+        }
+
+        /* FIRE TEXT */
+        @keyframes fire-text {
+            0% { text-shadow: 0 0 2px #facc15; }
+            50% { text-shadow: 0 0 15px #ef4444, 0 0 30px #f97316; transform: scale(1.1); }
+            100% { text-shadow: 0 0 2px #facc15; }
+        }
+        .fire-text-anim {
+            animation: fire-text 0.2s infinite alternate;
+        }
+
+        /* FIRE EMBER PARTICLES */
+        @keyframes ember-rise {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-50px) scale(0); opacity: 0; }
+        }
+        .animate-ember {
+            animation: ember-rise 2s ease-out infinite;
+        }
+
+        /* WATER SHIMMER */
+        @keyframes shimmer-water {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .water-shimmer {
+            background: linear-gradient(270deg, rgba(6,182,212,0.1), rgba(59,130,246,0.15), rgba(6,182,212,0.1));
+            background-size: 200% 200%;
+            animation: shimmer-water 4s ease infinite;
+        }
+
+        /* TRAIN BAR SHIMMER */
+        @keyframes train-bar-flow {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 200% 0%; }
+        }
+        .train-bar-anim {
+            background: linear-gradient(90deg, #22c55e, #4ade80, #22c55e);
+            background-size: 200% 100%;
+            animation: train-bar-flow 2s linear infinite;
+        }
+
+        /* CONFETTI */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            animation: confetti-fall 3s linear forwards;
+        }
+        @keyframes confetti-fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* SCROLLBAR */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 6px; border: 2px solid rgba(0,0,0,0); background-clip: padding-box; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background-color: rgba(255,255,255,0.3); }
+        
+        /* PULSE RED */
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); border-color: transparent; }
+            50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); border-color: #ef4444; }
+        }
+        .animate-pulse-red {
+            animation: pulse-red 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        /* SHIMMER EFFECT FOR BUTTONS */
+        @keyframes shimmer {
+            0% { background-position: 200% center; }
+            100% { background-position: -200% center; }
+        }
+        .shimmer-bg {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite linear;
+        }
+
+        /* DUNGEON GLOW */
+        .dungeon-glow {
+            box-shadow: 0 0 40px rgba(147, 51, 234, 0.2), inset 0 0 20px rgba(147, 51, 234, 0.1);
+        }
+
+        /* CASINO GLOW */
+        .casino-glow {
+            box-shadow: 0 0 15px rgba(0, 231, 1, 0.3);
+        }
+    </style>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel" src="./index.tsx" data-type="module"></script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
